@@ -347,7 +347,14 @@ defimpl Poison.Encoder, for: Any do
   end
 
   def encode(%{__struct__: _} = struct, options) do
-    Poison.Encoder.Map.encode(Map.from_struct(struct), options)
+    map = struct
+          |> Map.from_struct
+          |> sanitize_map
+    Poison.Encoder.Map.encode(map, options)
+  end
+
+  defp sanitize_map(map) do
+    Map.drop(map, [:__meta__, :__struct__])
   end
 
   def encode(value, _options) do
